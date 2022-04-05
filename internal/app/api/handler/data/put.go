@@ -15,6 +15,14 @@ import (
 func Put(c *gin.Context) {
 	start := time.Now()
 
+	err := cache.DeleteCache("/data")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"err": err,
+		})
+		return
+	}
+
 	newData, exist := c.GetQuery("data")
 	if !exist {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -22,14 +30,13 @@ func Put(c *gin.Context) {
 		})
 		return
 	}
-	err := db.DataUpdate(newData)
+	err = db.DataUpdate(newData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"err": err,
 		})
 		return
 	}
-	cache.DeleteCache("/data")
 
 	duration := time.Since(start).Seconds()
 
